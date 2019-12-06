@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './App.css';
+import './App.less';
 import axios from 'axios';
 
 const FLICKER_API = "https://api.flickr.com/services/rest";
@@ -83,6 +83,7 @@ class App extends Component {
               placeholder="Search for images on flickr"
               value={this.state.search}
               onChange={this.handleSearch}
+              required
             />
             <button className="searchButton" type="submit">Find images</button>
           </form>
