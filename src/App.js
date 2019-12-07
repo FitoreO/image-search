@@ -26,14 +26,13 @@ class App extends Component {
       results: [],
       search: "",
       isLoading: false,
+      recent: JSON.parse(localStorage.getItem("recentSearch")) || []
     }
 
     this.handleSearch = this.handleSearch.bind(this);
     this.showMySearches = this.showMySearches.bind(this);
-  }
-
-  componentDidMount() {
-    //this.showMySearches();
+    this.recentSearch = this.recentSearch.bind(this);
+    this.handleRecentClick = this.handleRecentClick.bind(this);
   }
 
   handleSearch(input) {
@@ -46,11 +45,15 @@ class App extends Component {
 
 
   showMySearches(ev) {
-    ev.preventDefault();
-    
+    if (ev) 
+      ev.preventDefault();
+
+    this.recentSearch(this.state.search);
     this.setState(prevState => ({
+      ...prevState,
       isLoading: true
     }));
+
     axios({
       method: "GET",
       url: FLICKER_API,
@@ -61,14 +64,34 @@ class App extends Component {
         format: "json",
         nojsoncallback: true,
         privacy_filter: 1,
-        per_page: 20
+        per_page: 10
       }
     }).then(res => {
       this.setState(prevState => ({
+        ...prevState,
         results: res,
         isLoading: false,
       }));
-      console.log(this.state);
+    });
+  }
+
+  // Recent search handlers
+  recentSearch(query) {
+    let recent = this.state.recent;
+
+    if (recent.length > 9)
+      recent.shift();
+    
+    recent.push(query);
+    localStorage.setItem('recentSearch', JSON.stringify(recent));
+  }
+  handleRecentClick(ev) {
+    let text = ev.target.text.trim();
+    this.setState(prevState => ({
+      ...prevState,
+      search: text
+    }), () => {
+      this.showMySearches();
     });
   }
 
@@ -84,9 +107,14 @@ class App extends Component {
               value={this.state.search}
               onChange={this.handleSearch}
               required
-            />
+              />
             <button className="searchButton" type="submit">Find images</button>
           </form>
+          <div>
+            {this.state.recent.slice(0).reverse().map((element, i) => {
+              return <a href="#" onClick={this.handleRecentClick} key={i} style={{display: "block"}}>{element}</a>
+            })}
+          </div>
           
           <div className="results">
             {Object.entries(this.state.results).length ? <Images data={this.state.results.data.photos} /> : ""}
