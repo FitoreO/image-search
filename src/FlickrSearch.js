@@ -38,6 +38,11 @@ class FlickrSearch extends Component {
       event.preventDefault();
     }
 
+    if (!this.state.search.trim().length) {
+      alert("Please enter a query");
+      return;
+    }
+
     this.recentSearch(this.state.search);
     this.setState(prevState => ({
       ...prevState,
@@ -74,8 +79,9 @@ class FlickrSearch extends Component {
     recent.push(query);
     localStorage.setItem("recentSearch", JSON.stringify(recent));
   }
-  handleRecentClick(ev) {
-    let text = ev.target.textContent.trim();
+
+  handleRecentClick(event) {
+    let text = event.target.textContent.trim();
     this.setState(
       prevState => ({
         ...prevState,
